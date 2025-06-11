@@ -3,27 +3,8 @@ import React, { useState } from "react";
 export default function PersonCard({ person, onVote }) {
   const [reason, setReason] = useState("");
 
-  const group = person.group?.toLowerCase() || "";
-  let style = {
-    backgroundColor: "purple",
-    color: "white",
-  };
-
-  if (group === "gang") {
-    style = { backgroundColor: "black", color: "red" };
-  } else if (group === "game friends") {
-    style = { backgroundColor: "#333333", color: "white" };
-  } else if (group === "beel") {
-    style = { backgroundColor: "#39ff14", color: "white" };
-  } else if (group === "dotatrain") {
-    style = { backgroundColor: "#add8e6", color: "black" };
-  }
-
-  const score = (person.upvotes || 0) - (person.downvotes || 0);
-  const lastReason = person.lastReason && person.lastReason.trim() !== "" ? person.lastReason : "none entered";
-
   const handleUpvote = () => {
-    if (group === "gang") {
+    if (person.group.toLowerCase() === "gang") {
       alert("This person is in Gang and it is therefore not possible to vote positively on them");
       return;
     }
@@ -36,143 +17,136 @@ export default function PersonCard({ person, onVote }) {
     setReason("");
   };
 
+  // Determine background and text color based on group
+  let bgColor = "#800080"; // default purple background
+  let textColor = "white";
+
+  switch (person.group.toLowerCase()) {
+    case "gang":
+      bgColor = "#000000";
+      textColor = "red";
+      break;
+    case "game friends":
+      bgColor = "#333333";
+      textColor = "white";
+      break;
+    case "beel":
+      bgColor = "#39FF14"; // neon green
+      textColor = "white";
+      break;
+    case "dotatrain":
+      bgColor = "#89CFF0"; // baby blue
+      textColor = "black";
+      break;
+    case "nomad":
+    case "exile":
+      bgColor = "#800080"; // purple
+      textColor = "white";
+      break;
+    default:
+      bgColor = "#800080";
+      textColor = "white";
+  }
+
   const buttonStyle = {
     cursor: "pointer",
-    background: "none",
+    fontSize: 18,
+    backgroundColor: "transparent",
     border: "none",
-    fontSize: 26,
-    color: style.color,
+    color: textColor,
+    padding: "0 6px",
     userSelect: "none",
-    padding: 0,
-    margin: "0 6px",
-    transition: "transform 0.15s ease, color 0.15s ease",
   };
 
   return (
     <div
       style={{
-        ...style,
-        width: 220,
-        height: 350,
+        width: 150,
+        minHeight: 230,
+        backgroundColor: bgColor,
+        color: textColor,
         borderRadius: 8,
         padding: 8,
-        boxSizing: "border-box",
+        margin: 5,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 4,
+        boxSizing: "border-box",
         fontFamily: "Arial, sans-serif",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-        margin: 5,
-        color: style.color,
       }}
     >
       <img
         src={person.photo_url}
         alt={person.name}
         style={{
-          width: 180,
-          height: 180,
+          width: 130,
+          height: 130,
           objectFit: "cover",
           borderRadius: 8,
+          marginBottom: 6,
           flexShrink: 0,
-          marginBottom: 4,
         }}
       />
-      <div style={{ fontWeight: "bold", fontSize: 16, marginBottom: 2 }}>
-        {person.name}
-      </div>
+      <h3 style={{ margin: "2px 0", fontSize: 16 }}>{person.name}</h3>
 
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 8,
-          fontStyle: "italic",
-          fontSize: 13,
-          marginBottom: 2,  // reduced from 4
-          color: style.color,
+          marginBottom: 4,
+          fontSize: 12,
           width: "100%",
-          userSelect: "none",
         }}
       >
-        <button
-          onClick={handleUpvote}
-          style={buttonStyle}
-          onMouseDown={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
-          onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          aria-label={`Upvote ${person.name}`}
-          title="Upvote"
-        >
-          👍
-        </button>
-
-        <span style={{ flexGrow: 1, textAlign: "center" }}>Group: {person.group}</span>
-
-        <button
-          onClick={handleDownvote}
-          style={buttonStyle}
-          onMouseDown={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
-          onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          aria-label={`Downvote ${person.name}`}
-          title="Downvote"
-        >
+        <button onClick={handleDownvote} style={buttonStyle} aria-label="Downvote">
           👎
         </button>
+        <span style={{ margin: "0 6px", flexShrink: 0, flexGrow: 1, textAlign: "center" }}>
+          <strong>{person.group}</strong>
+        </span>
+        <button onClick={handleUpvote} style={buttonStyle} aria-label="Upvote">
+          👍
+        </button>
       </div>
 
-      <div
-        style={{
-          fontWeight: "bold",
-          fontSize: 14,
-          marginBottom: 4,  // reduced from 6
-          color: style.color,
-          width: "100%",
-          textAlign: "center",
-          userSelect: "none",
-        }}
-      >
-        Score: {score}
-      </div>
-
+      <p style={{ margin: "2px 0", fontSize: 13 }}>
+        Score: <strong>{person.upvotes - person.downvotes}</strong>
+      </p>
 
       <input
         type="text"
-        placeholder="Enter reason for vote"
+        placeholder="Enter reason"
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         style={{
-          width: "100%",
-          borderRadius: 4,
-          border: `1px solid ${style.color}`,
-          padding: "4px 6px",
-          fontFamily: "Arial, sans-serif",
-          color: style.color,
-          backgroundColor: style.backgroundColor,
-          boxSizing: "border-box",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
           fontSize: 12,
+          padding: "4px 6px",
+          width: "100%",
+          boxSizing: "border-box",
           marginBottom: 4,
+          borderRadius: 4,
+          border: `1px solid ${textColor}`,
+          color: textColor,
+          backgroundColor: "transparent",
         }}
       />
 
-      <div
+      <p
         style={{
           fontSize: 11,
-          fontStyle: "italic",
-          color: style.color,
+          marginTop: 2,
+          height: 18,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
           width: "100%",
-          textAlign: "center",
-          userSelect: "none",
+          color: textColor,
         }}
+        title={person.lastReason || "None entered"}
       >
-        Last Reason: {lastReason}
-      </div>
+        Last Reason: {person.lastReason ? person.lastReason : "none entered"}
+      </p>
     </div>
   );
 }
