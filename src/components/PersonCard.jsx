@@ -1,10 +1,23 @@
 import React, { useState } from "react";
 
+const groupStyles = {
+  gang: { backgroundColor: "#000", color: "red" },
+  "game friends": { backgroundColor: "#444", color: "white" },
+  beel: { backgroundColor: "#39ff14", color: "white" },
+  dotatrain: { backgroundColor: "#add8e6", color: "black" },
+  default: { backgroundColor: "purple", color: "white" },
+};
+
 export default function PersonCard({ person, onVote }) {
   const [reason, setReason] = useState("");
 
+  const groupKey = person.group.toLowerCase();
+  const style = groupStyles[groupKey] || groupStyles.default;
+
+  const score = (person.upvotes || 0) - (person.downvotes || 0);
+
   const handleUpvote = () => {
-    if (person.group.toLowerCase() === "gang") {
+    if (groupKey === "gang") {
       alert("This person is in Gang and it is therefore not possible to vote positively on them");
       return;
     }
@@ -17,102 +30,74 @@ export default function PersonCard({ person, onVote }) {
     setReason("");
   };
 
-  // Determine background and text color based on group
-  let bgColor = "#800080"; // default purple background
-  let textColor = "white";
-
-  switch (person.group.toLowerCase()) {
-    case "gang":
-      bgColor = "#000000";
-      textColor = "red";
-      break;
-    case "game friends":
-      bgColor = "#333333";
-      textColor = "white";
-      break;
-    case "beel":
-      bgColor = "#39FF14"; // neon green
-      textColor = "white";
-      break;
-    case "dotatrain":
-      bgColor = "#89CFF0"; // baby blue
-      textColor = "black";
-      break;
-    case "nomad":
-    case "exile":
-      bgColor = "#800080"; // purple
-      textColor = "white";
-      break;
-    default:
-      bgColor = "#800080";
-      textColor = "white";
-  }
-
-  const buttonStyle = {
-    cursor: "pointer",
-    fontSize: 18,
-    backgroundColor: "transparent",
-    border: "none",
-    color: textColor,
-    padding: "0 6px",
-    userSelect: "none",
-  };
-
   return (
     <div
       style={{
-        width: 150,
-        minHeight: 230,
-        backgroundColor: bgColor,
-        color: textColor,
+        ...style,
+        width: 160,  // smaller width
+        padding: 8,  // less padding
         borderRadius: 8,
-        padding: 8,
         margin: 5,
+        boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        boxSizing: "border-box",
+        fontSize: 12, // smaller font
         fontFamily: "Arial, sans-serif",
+        userSelect: "none",
       }}
     >
       <img
         src={person.photo_url}
         alt={person.name}
         style={{
-          width: 130,
-          height: 130,
+          width: 80,  // smaller square image
+          height: 80,
           objectFit: "cover",
-          borderRadius: 8,
+          borderRadius: 4,
           marginBottom: 6,
-          flexShrink: 0,
         }}
       />
-      <h3 style={{ margin: "2px 0", fontSize: 16 }}>{person.name}</h3>
+      <div style={{ fontWeight: "bold", marginBottom: 3 }}>{person.name}</div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 4,
-          fontSize: 12,
-          width: "100%",
-        }}
-      >
-        <button onClick={handleDownvote} style={buttonStyle} aria-label="Downvote">
-          👎
-        </button>
-        <span style={{ margin: "0 6px", flexShrink: 0, flexGrow: 1, textAlign: "center" }}>
-          <strong>{person.group}</strong>
-        </span>
-        <button onClick={handleUpvote} style={buttonStyle} aria-label="Upvote">
+      <div style={{ marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <button
+          onClick={handleUpvote}
+          style={{
+            cursor: "pointer",
+            background: "transparent",
+            border: "none",
+            fontSize: 18,
+            color: style.color,
+            userSelect: "none",
+          }}
+          aria-label="Upvote"
+          title="Upvote"
+        >
           👍
         </button>
-      </div>
 
-      <p style={{ margin: "2px 0", fontSize: 13 }}>
-        Score: <strong>{person.upvotes - person.downvotes}</strong>
-      </p>
+        <div>
+          <div style={{ marginBottom: 2 }}>{person.group}</div>
+          <div style={{ fontWeight: "bold" }}>Score: {score}</div>
+        </div>
+
+        <button
+          onClick={handleDownvote}
+          style={{
+            cursor: "pointer",
+            background: "transparent",
+            border: "none",
+            fontSize: 18,
+            color: style.color,
+            userSelect: "none",
+          }}
+          aria-label="Downvote"
+          title="Downvote"
+        >
+          👎
+        </button>
+      </div>
 
       <input
         type="text"
@@ -120,33 +105,20 @@ export default function PersonCard({ person, onVote }) {
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         style={{
-          fontSize: 12,
-          padding: "4px 6px",
           width: "100%",
-          boxSizing: "border-box",
+          height: 24,
+          fontSize: 11,
+          padding: "0 6px",
           marginBottom: 4,
           borderRadius: 4,
-          border: `1px solid ${textColor}`,
-          color: textColor,
-          backgroundColor: "transparent",
+          border: "1px solid #ccc",
+          boxSizing: "border-box",
         }}
       />
 
-      <p
-        style={{
-          fontSize: 11,
-          marginTop: 2,
-          height: 18,
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
-          width: "100%",
-          color: textColor,
-        }}
-        title={person.lastReason || "None entered"}
-      >
+      <div style={{ fontSize: 10, fontStyle: "italic", textAlign: "center", minHeight: 24, color: style.color }}>
         Last Reason: {person.lastReason ? person.lastReason : "none entered"}
-      </p>
+      </div>
     </div>
   );
 }

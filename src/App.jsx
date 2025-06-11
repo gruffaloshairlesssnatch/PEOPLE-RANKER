@@ -23,7 +23,6 @@ export default function App() {
       setLoading(false);
       return;
     }
-    console.log("Fetched people:", data);
     setPeople(data);
     setLoading(false);
   };
@@ -42,33 +41,36 @@ export default function App() {
     if (!person) return;
 
     const updatedData = {
-      upvotes: (person.upvotes ?? 0) + (isUpvote ? 1 : 0),
-      downvotes: (person.downvotes ?? 0) + (isUpvote ? 0 : 1),
+      upvotes: person.upvotes + (isUpvote ? 1 : 0),
+      downvotes: person.downvotes + (isUpvote ? 0 : 1),
       lastReason: reason,
     };
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("people")
       .update(updatedData)
       .eq("id", id);
-
-    console.log("Vote update response:", data, error);
 
     if (error) {
       alert("Error updating vote: " + error.message);
       return;
     }
 
-    await fetchPeople();
+    // Refetch after update
+    fetchPeople();
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center" }}>PEOPLE RANKER</h1>
-
+    <div style={{ padding: 20, fontFamily: "Arial, sans-serif", textAlign: "center" }}>
+      <h1 style={{ fontSize: 36, marginBottom: 10 }}>PEOPLE RANKER</h1>
       <button
         onClick={() => setShowLeaderboard(true)}
-        style={{ marginBottom: 20, padding: "8px 16px", cursor: "pointer" }}
+        style={{
+          padding: "8px 20px",
+          cursor: "pointer",
+          fontSize: 16,
+          marginBottom: 20,
+        }}
       >
         Show Leaderboard
       </button>
@@ -80,6 +82,7 @@ export default function App() {
         style={{
           display: "flex",
           flexWrap: "wrap",
+          justifyContent: "center",
           gap: 20,
         }}
       >
